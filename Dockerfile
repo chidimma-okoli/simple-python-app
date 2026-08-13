@@ -1,20 +1,20 @@
-# This file start with an existing Python Enviornment
-FROM python:3.12-slim
+# simple-pyhton-app
+FROM python:3.11-slim
 
-# Create a working directory folder
+# Creating the working directory
 WORKDIR /app
 
-# copy Dependencies into the working directory
-COPY ./requirements.txt .
+# Copying the dependencies
+COPY requirements.txt .
 
-# Install dependencies
+# Installing the dependencies in the working Directory
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the files into the working directory 
+# Copying the other dependencies to the work directory
 COPY . .
 
-# Listen on port 5000
+# Listening port
 EXPOSE 5000
 
-#start the container for this image
-CMD ['python', 'app.py']
+# Running the application
+CMD ["python", "app.py"]

@@ -1,7 +1,25 @@
 from flask import Flask, jsonify, request
 from tasks import get_all_tasks, add_task, complete_task
+import time
+import mysql.connector
 
 app = Flask(__name__)
+
+for attempt in range(10):
+    try:
+        db = mysql.connector.connect(
+            host="database",
+            user="root",
+            password="rootpassword",
+            database="simple-app"
+        )
+        print("Connected to MySQL successfully!")
+        break
+    except mysql.connector.Error as err:
+        print(f"MySQL not ready yet: {err}")
+        time.sleep(3)
+else:
+    raise RuntimeError("Could not connect to MySQL after several attempts")
 
 @app.route("/")
 def home():
@@ -34,6 +52,14 @@ def update_task(id):
         return jsonify(task)
 
     return {"error": "Task not found"}, 404
+
+@app.route("/users")
+def users():
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("select * from users")
+    results = cursor.fetchall()
+    cursor.close()
+    return jsonify(results)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
