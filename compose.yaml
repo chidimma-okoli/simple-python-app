@@ -6,14 +6,25 @@ services:
     ports:
       - "5000:5000"  
     environment: 
-     - Flask_ENV=development
-
+     DB_HOST: ${DB_HOST}
+     DB_USER: ${DB_USER}
+     DB_PASSWORD: ${DB_PASSWORD}
+     DB_NAME: ${DB_NAME}
+    depends_on:
+     database:
+      condition: service_healthy     
+    deploy:
+      resources:
+       limits:
+         cpus: "0.50"
+         memory: 521MB
 
   database:            # Adding database service to the application                   
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: simple-app
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+     
     volumes:         # Adding a volume for presistent data storage
       - mysql-data:/var/lib/mysql
     healthcheck:

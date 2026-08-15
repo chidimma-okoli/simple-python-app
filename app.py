@@ -2,16 +2,17 @@ from flask import Flask, jsonify, request
 from tasks import get_all_tasks, add_task, complete_task
 import time
 import mysql.connector
+import os
 
 app = Flask(__name__)
 
 for attempt in range(10):
     try:
         db = mysql.connector.connect(
-            host="database",
-            user="root",
-            password="rootpassword",
-            database="simple-app"
+            host=os.getenv("DB_HOST"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            database=os.getenv("DB_NAME")
         )
         print("Connected to MySQL successfully!")
         break
