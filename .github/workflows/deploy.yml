@@ -28,4 +28,4 @@ jobs:
       -  name: Test SSH connection
          run: |
            ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> "$HOME/.ssh/known_hosts"
-           ssh -i "$HOME/.ssh/Cally.pem" ubuntu@"${{ secrets.EC2_HOST }}" "echo SSH connection successful"
+           ssh -vvv -o StrictHostKeyChecking=yes =i "$HOME/.ssh/Cally.pem" ubuntu@"${{ secrets.EC2_HOST }}" "echo SSH connection successful"
