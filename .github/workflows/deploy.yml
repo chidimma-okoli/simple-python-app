@@ -23,4 +23,9 @@ jobs:
           mkdir -p "$HOME/.ssh"
           echo "${{ secrets.EC2_SSH_KEY }}" > "$HOME/.ssh/ec2.pem"
           chmod 600 "$HOME/.ssh/ec2.pem"
-          echo "SSH key prepared"                  
+          echo "SSH key prepared"
+                  
+      -  name: Test SSH connection
+         run: |
+           ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> "$HOME/.ssh/known_hosts"
+           ssh -i "$HOME/.ssh/ec2.pem" ubuntu@"${{ secrets.EC2_HOST }}" "echo SSH connection successful"
