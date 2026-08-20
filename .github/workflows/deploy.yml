@@ -48,11 +48,18 @@ jobs:
           ssh -o StrictHostKeyChecking=no \
             -i "$HOME/.ssh/ec2.pem" \
             ubuntu@"${{ secrets.EC2_HOST }}" \
-            "cd ~/simple-python-app && git pull origin master && docker compose up -d --build"
-
-      - name: Health check
-        run: |
-          ssh -o StrictHostKeyChecking=no \
-            -i "$HOME/.ssh/ec2.pem" \
-            ubuntu@"${{ secrets.EC2_HOST }}" \
-            "curl -f http://localhost:5000"
+            'cd ~/simple-python-app && \
+             PREVIOUS_COMMIT=$(git rev-parse HEAD) && \
+             echo "Previous commit: $PREVIOUS_COMMIT" && \
+             git pull origin master && \
+             docker compose up -d --build && \
+             sleep 10 && \
+             if curl -f http://localhost:5000; then \
+               echo "Deployment successful"
+             else
+               echo "Deployment failed. Rolling back..."
+               git reset --hard "$PREVIOUS_COMMIT"
+               docker compose up -d --build
+               echo "Rollback completed"
+               exit 1
+             fi'
