@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -19,6 +19,14 @@ jobs:
       - name: Test Python application
         run: python -m py_compile app.py
 
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Prepare SSH key
         run: |
           mkdir -p "$HOME/.ssh"
@@ -34,6 +42,7 @@ jobs:
             -i "$HOME/.ssh/ec2.pem" \
             ubuntu@"${{ secrets.EC2_HOST }}" \
             "echo SSH connection successful"
+
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no \
