@@ -30,23 +30,25 @@ jobs:
       - name: Prepare SSH key
         run: |
           mkdir -p "$HOME/.ssh"
-          echo "${{ secrets.EC2_SSH_KEY }}" > "$HOME/.ssh/ec2.pem"
-          chmod 600 "$HOME/.ssh/ec2.pem"
-          echo "SSH key prepared"
+          echo "${{ secrets.EC2_SSH_KEY }}" > "$HOME/.ssh/Cally.pem"
+          chmod 600 "$HOME/.ssh/Cally.pem"
+          echo "${{ secrets.EC2_KNOWN_HOSTS }}" > "$HOME/.ssh/known_hosts"
+          chmod 644 "$HOME/.ssh/known_hosts"
+          echo "SSH key and known_hosts prepared"
 
       - name: Test SSH connection
         run: |
           ssh -vvv \
-            -o StrictHostKeyChecking=no \
+            -o StrictHostKeyChecking=yes \
             -o ConnectTimeout=10 \
-            -i "$HOME/.ssh/ec2.pem" \
+            -i "$HOME/.ssh/Cally.pem" \
             ubuntu@"${{ secrets.EC2_HOST }}" \
             "echo SSH connection successful"
 
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no \
-            -i "$HOME/.ssh/ec2.pem" \
+          ssh -o StrictHostKeyChecking=yes \
+            -i "$HOME/.ssh/Cally.pem" \
             ubuntu@"${{ secrets.EC2_HOST }}" \
             'cd ~/simple-python-app && \
              PREVIOUS_COMMIT=$(git rev-parse HEAD) && \
