@@ -7,7 +7,8 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest  
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,15 +18,19 @@ jobs:
 
       - name: Test Python application
         run: python -m py_compile app.py
-      
-      -  name: Prepare SSH key
-         run: |
+
+      - name: Prepare SSH key
+        run: |
           mkdir -p "$HOME/.ssh"
-          echo "${{ secrets.EC2_SSH_KEY }}" > "$HOME/.ssh/Cally.pem"
-          chmod 600 "$HOME/.ssh/Cally.pem"
+          echo "${{ secrets.EC2_SSH_KEY }}" > "$HOME/.ssh/ec2.pem"
+          chmod 600 "$HOME/.ssh/ec2.pem"
           echo "SSH key prepared"
-                  
-      -  name: Test SSH connection
-         run: |
-           ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> "$HOME/.ssh/known_hosts"
-           ssh -vvv -o StrictHostKeyChecking=yes -i "$HOME/.ssh/Cally.pem" ubuntu@"${{ secrets.EC2_HOST }}" "echo SSH connection successful"
+
+      - name: Test SSH connection
+        run: |
+          ssh -vvv \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=10 \
+            -i "$HOME/.ssh/ec2.pem" \
+            ubuntu@"${{ secrets.EC2_HOST }}" \
+            "echo SSH connection successful"
