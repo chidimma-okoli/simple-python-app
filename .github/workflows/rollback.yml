@@ -1,0 +1,33 @@
+name: Manual Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "Git commit to deploy"
+        required: true
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Prepare SSH key
+        run: |
+          mkdir -p "$HOME/.ssh"
+          echo "${{ secrets.EC2_SSH_KEY }}" > "$HOME/.ssh/ec2.pem"
+          chmod 600 "$HOME/.ssh/ec2.pem"
+
+      - name: Roll back EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+            -i "$HOME/.ssh/ec2.pem" \
+            ubuntu@"${{ secrets.EC2_HOST }}" \
+            "cd ~/simple-python-app && git fetch origin && git reset --hard ${{ github.event.inputs.commit }} && docker compose up -d --build"
+
+      - name: Health check
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+            -i "$HOME/.ssh/ec2.pem" \
+            ubuntu@"${{ secrets.EC2_HOST }}" \
+            "curl -f http://localhost:5000"
