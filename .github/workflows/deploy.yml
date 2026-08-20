@@ -34,3 +34,9 @@ jobs:
             -i "$HOME/.ssh/ec2.pem" \
             ubuntu@"${{ secrets.EC2_HOST }}" \
             "echo SSH connection successful"
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+            -i "$HOME/.ssh/ec2.pem" \
+            ubuntu@"${{ secrets.EC2_HOST }}" \
+            "cd ~/simple-python-app && git pull origin master && docker compose up -d --build"
