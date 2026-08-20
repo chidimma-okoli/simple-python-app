@@ -65,3 +65,14 @@ jobs:
                echo "Rollback completed"
                exit 1
              fi'
+      - name: Deployment summary
+        run: |
+          ssh -o StrictHostKeyChecking=yes \
+            -i "$HOME/.ssh/ec2.pem" \
+            ubuntu@"${{ secrets.EC2_HOST }}" \
+            'cd ~/simple-python-app && \
+             echo "===== DEPLOYMENT SUMMARY =====" && \
+             echo "Commit: $(git rev-parse --short HEAD)" && \
+             echo "Branch: $(git branch --show-current)" && \
+             echo "===== DOCKER STATUS =====" && \
+             docker compose ps'
