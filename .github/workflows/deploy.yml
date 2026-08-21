@@ -65,6 +65,22 @@ jobs:
                echo "Rollback completed"
                exit 1
              fi'
+      - name: Configure Nginx
+        run: |
+          scp \
+            -o StrictHostKeyChecking=yes \
+            -i "$HOME/.ssh/Cally.pem" \
+            nginx/default.conf \
+            ubuntu@"${{ secrets.EC2_HOST }}:/tmp/default.conf"
+
+          ssh \
+            -o StrictHostKeyChecking=yes \
+            -i "$HOME/.ssh/Cally.pem" \
+            ubuntu@"${{ secrets.EC2_HOST }}" \
+            "sudo cp /tmp/default.conf /etc/nginx/sites-available/default && \
+             sudo nginx -t && \
+             sudo systemctl reload nginx"
+
       - name: Deployment summary
         run: |
           ssh -o StrictHostKeyChecking=yes \
